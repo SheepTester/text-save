@@ -1,4 +1,4 @@
-const CACHE_NAME = 'text-save-cache-v1';
+const CACHE_NAME = 'text-save-cache-v1.2';
 const DB_NAME = 'text-save';
 const urlsToCache = [
   './style.css',
@@ -9,7 +9,7 @@ const urlsToCache = [
   './basic.css',
   './sw-update.js'
 ];
-const validIDRegex = /^[^.]+$/;
+const validIDRegex = /^[^.?#/]+$/;
 let template, dirTemplate;
 
 const db = new Promise((res, rej) => {
@@ -45,6 +45,14 @@ function write(db, id, content) {
   return promisify(getNotes(db, 'readwrite').put({id, content}));
 }
 
+function escape(text) {
+  return text
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE_NAME)
     .then(cache => cache.addAll(urlsToCache))
@@ -65,11 +73,7 @@ self.addEventListener('fetch', e => {
       const ids = await keys(await db);
       return new Response(
         dirTemplate.replace(/\{key ([^}]+)\}/g, (m, html) => {
-          return ids.map(id => html.replace(/%id%/g, id
-            .replace(/&/g, '&amp;')
-            .replace(/</g, '&lt;')
-            .replace(/>/g, '&gt;')
-            .replace(/"/g, '&quot;')));
+          return ids.map(id => html.replace(/%id%/g, escape(id)));
         }),
         {headers: {'Content-Type': 'text/html'}}
       );
@@ -80,11 +84,8 @@ self.addEventListener('fetch', e => {
     }
     return new Response(
       template
-        .replace(/%id%/g, id)
-        .replace(/%content%/g, (await read(await db, id).catch(() => ''))
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')),
+        .replace(/%id%/g, escape(id))
+        .replace(/%content%/g, escape(await read(await db, id).catch(() => ''))),
       {headers: {'Content-Type': 'text/html'}}
     );
   }));

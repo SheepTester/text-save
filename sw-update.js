@@ -3,5 +3,5 @@ if ('serviceWorker' in navigator) {
     console.log('New service worker; reloading.');
     if (e.data.reload) window.location.reload();
   });
-  navigator.serviceWorker.register('./sw.js');
+  navigator.serviceWorker.register('/text-save/sw.js');
 }

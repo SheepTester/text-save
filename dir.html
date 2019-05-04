@@ -6,7 +6,9 @@
     <meta name="description" content="A simple web app that saves plain text documents to your browser"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+    <link rel="stylesheet" href="/sheep3.css">
     <link rel="stylesheet" href="./style.css">
+    <script src="/sheep3.js" charset="utf-8"></script>
     <script src="./sw-update.js" charset="utf-8"></script>
   </head>
   <body>
@@ -16,8 +18,8 @@
 const newFile = document.getElementById('new');
 newFile.addEventListener('keydown', e => {
   if (e.keyCode === 13) {
-    const id = newFile.value.replace(/\./g, '');
-    if (id) window.location = './' + newFile.value;
+    const id = newFile.value.replace(/[.?#/]/g, '');
+    if (id) window.location = './' + id;
   }
 });
     </script>
