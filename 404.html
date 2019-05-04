@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <title>text-save / [LOADING]</title>
+    <meta charset="UTF-8">
+    <meta name="description" content="A simple web app that saves plain text documents to your browser"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
+    <link rel="stylesheet" href="./basic.css">
+  </head>
+  <body>
+    <span>Initializing...</span>
+    <script>
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('./sw.js')
+    .then(regis => navigator.serviceWorker.ready)
+    .then(() => window.location.reload());
+}
+    </script>
+  </body>
+</html>
