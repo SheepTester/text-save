@@ -1,4 +1,4 @@
-const CACHE_NAME = 'text-save-cache-v1.3';
+const CACHE_NAME = 'text-save-cache-v1.7';
 const DB_NAME = 'text-save';
 const urlsToCache = [
   './style.css',
@@ -7,7 +7,9 @@ const urlsToCache = [
   './template.html',
   './invalid-id.html',
   './basic.css',
-  './sw-update.js'
+  './sw-update.js',
+  'https://fonts.googleapis.com/css?family=Inconsolata',
+  'https://fonts.gstatic.com/s/inconsolata/v17/QldKNThLqRwH-OJ1UHjlKGlZ5qg.woff2'
 ];
 const validIDRegex = /^[^.?#/]+$/;
 let template, dirTemplate;
@@ -45,12 +47,20 @@ function write(db, id, content) {
   return promisify(getNotes(db, 'readwrite').put({id, content}));
 }
 
-function escape(text) {
+function escapeChars(text) {
   return text
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
+}
+
+function attemptDecodeURI(text) {
+  try {
+    return decodeURIComponent(text);
+  } catch (e) {
+    return text;
+  }
 }
 
 self.addEventListener('install', e => {
@@ -65,7 +75,7 @@ self.addEventListener('fetch', e => {
   }
   e.respondWith(caches.match(e.request).then(async res => {
     if (res) return res;
-    const id = decodeURIComponent(url.pathname.replace('/text-save/', ''));
+    const id = attemptDecodeURI(url.pathname.replace('/text-save/', ''));
     if (!id) {
       if (!dirTemplate) {
         dirTemplate = await caches.match('./dir.html').then(r => r.text());
@@ -73,7 +83,7 @@ self.addEventListener('fetch', e => {
       const ids = await keys(await db);
       return new Response(
         dirTemplate.replace(/\{key ([^}]+)\}/g, (m, html) => {
-          return ids.map(id => html.replace(/%id%/g, escape(id)));
+          return ids.map(id => html.replace(/%id%/g, escapeChars(id)));
         }),
         {headers: {'Content-Type': 'text/html'}}
       );
@@ -84,8 +94,8 @@ self.addEventListener('fetch', e => {
     }
     return new Response(
       template
-        .replace(/%id%/g, escape(id))
-        .replace(/%content%/g, escape(await read(await db, id).catch(() => ''))),
+        .replace(/%id%/g, escapeChars(id))
+        .replace(/%content%/g, escapeChars(await read(await db, id).catch(() => ''))),
       {headers: {'Content-Type': 'text/html'}}
     );
   }));
