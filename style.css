@@ -5,7 +5,7 @@ html, body {
 body {
   margin: 0;
   font-size: 0;
-  font-family: 'Roboto', sans-serif;
+  font-family: 'Inconsolata', monospace;
 }
 .editor {
   display: flex;

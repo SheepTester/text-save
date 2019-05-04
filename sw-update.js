@@ -1,7 +1,9 @@
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.addEventListener('message', e => {
-    console.log('New service worker; reloading.');
-    if (e.data.reload) window.location.reload();
+    if (e.data.reload) {
+      console.log('New service worker; reloading.', e.data.v);
+      window.location.reload();
+    }
   });
   navigator.serviceWorker.register('/text-save/sw.js');
 }

@@ -1,4 +1,4 @@
-const CACHE_NAME = 'text-save-cache-v1.2';
+const CACHE_NAME = 'text-save-cache-v1.3';
 const DB_NAME = 'text-save';
 const urlsToCache = [
   './style.css',
@@ -95,7 +95,7 @@ self.addEventListener('activate', e => {
     .then(names => Promise.all(names.map(cache => CACHE_NAME !== cache && caches.delete(cache))))
     .then(() => self.clients.claim())
     .then(() => self.clients.matchAll())
-    .then(clients => clients.forEach(client => client.postMessage({reload: true}))));
+    .then(clients => clients.forEach(client => client.postMessage({reload: true, v: CACHE_NAME}))));
 });
 self.addEventListener('message', e => {
   if (e.data.id) {
