@@ -1,4 +1,4 @@
-const CACHE_NAME = 'text-save-cache-v1.7';
+const CACHE_NAME = 'text-save-cache-v1.8';
 const DB_NAME = 'text-save';
 const urlsToCache = [
   './style.css',
