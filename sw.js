@@ -9,7 +9,7 @@ const urlsToCache = [
   './basic.css'
 ];
 const validIDRegex = /^[^.]+$/;
-let textSaveTemplate;
+let template, dirTemplate;
 
 const db = new Promise((res, rej) => {
   const dbReq = indexedDB.open(DB_NAME);
@@ -33,7 +33,7 @@ function getNotes(db, perms = 'readonly') {
 }
 
 function keys(db) {
-  return promisify(getNotes(db).getAllKeys()).then(({content}) => content);
+  return promisify(getNotes(db).getAllKeys());
 }
 
 function read(db, id) {
@@ -51,11 +51,31 @@ self.addEventListener('install', e => {
 });
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
-  e.respondWith(location.host !== url.host ? fetch(e.request) : caches.match(e.request).then(async res => {
+  if (location.host !== url.host || url.pathname.indexOf('/text-save/') !== 0) {
+    console.log(url.pathname, url.href);
+    return e.respondWith(fetch(e.request));
+  }
+  e.respondWith(caches.match(e.request).then(async res => {
     if (res) return res;
-    const id = url.pathname.replace('/text-save', '').replace('/', '');
+    const id = decodeURIComponent(url.pathname.replace('/text-save/', ''));
+    if (!id) {
+      if (!dirTemplate) {
+        dirTemplate = await caches.match('./dir.html').then(r => r.text());
+      }
+      const ids = await keys(await db);
+      return new Response(
+        dirTemplate.replace(/\{key ([^}]+)\}/g, (m, html) => {
+          return ids.map(id => html.replace(/%id%/g, id
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')));
+        }),
+        {headers: {'Content-Type': 'text/html'}}
+      );
+    }
     if (!validIDRegex.test(id)) return caches.match('./invalid-id.html');
-    if (!textSaveTemplate) {
+    if (!template) {
       template = await caches.match('./template.html').then(r => r.text());
     }
     return new Response(

@@ -5,11 +5,13 @@
     <meta charset="UTF-8">
     <meta name="description" content="A simple web app that saves plain text documents to your browser"/>
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <link href="https://fonts.googleapis.com/css?family=Roboto" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
     <script src="./main.js" charset="utf-8"></script>
   </head>
-  <body>
-    <textarea id="text">%content%</textarea>
+  <body class="editor">
+    <h1>%id%<a href="./" class="home">list</a></h1>
+    <textarea id="text" autofocus>%content%</textarea>
     <script type="text/javascript">ready('%id%');</script>
   </body>
 </html>
