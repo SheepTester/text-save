@@ -7,18 +7,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <link href="https://fonts.googleapis.com/css?family=Roboto+Condensed" rel="stylesheet">
     <link rel="stylesheet" href="./style.css">
+    <script src="./sw-update.js" charset="utf-8"></script>
   </head>
   <body>
     <h1>text-save / <input type="text" id="new" placeholder="new file" class="new-file"></h1>
     <div class="file-list">{key <a href="./%id%">%id%</a>}</div>
     <script type="text/javascript">
-      const newFile = document.getElementById('new');
-      newFile.addEventListener('keydown', e => {
-        if (e.keyCode === 13) {
-          const id = newFile.value.replace(/\./g, '');
-          if (id) window.location = './' + newFile.value;
-        }
-      });
+const newFile = document.getElementById('new');
+newFile.addEventListener('keydown', e => {
+  if (e.keyCode === 13) {
+    const id = newFile.value.replace(/\./g, '');
+    if (id) window.location = './' + newFile.value;
+  }
+});
     </script>
   </body>
 </html>

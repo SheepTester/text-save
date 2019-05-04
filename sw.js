@@ -1,4 +1,4 @@
-const CACHE_NAME = 'text-save-cache';
+const CACHE_NAME = 'text-save-cache-v1';
 const DB_NAME = 'text-save';
 const urlsToCache = [
   './style.css',
@@ -6,7 +6,8 @@ const urlsToCache = [
   './dir.html',
   './template.html',
   './invalid-id.html',
-  './basic.css'
+  './basic.css',
+  './sw-update.js'
 ];
 const validIDRegex = /^[^.]+$/;
 let template, dirTemplate;
@@ -52,7 +53,6 @@ self.addEventListener('install', e => {
 self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (location.host !== url.host || url.pathname.indexOf('/text-save/') !== 0) {
-    console.log(url.pathname, url.href);
     return e.respondWith(fetch(e.request));
   }
   e.respondWith(caches.match(e.request).then(async res => {
@@ -90,7 +90,11 @@ self.addEventListener('fetch', e => {
   }));
 });
 self.addEventListener('activate', e => {
-  e.waitUntil(self.clients.claim());
+  e.waitUntil(caches.keys()
+    .then(names => Promise.all(names.map(cache => CACHE_NAME !== cache && caches.delete(cache))))
+    .then(() => self.clients.claim())
+    .then(() => self.clients.matchAll())
+    .then(clients => clients.forEach(client => client.postMessage({reload: true}))));
 });
 self.addEventListener('message', e => {
   if (e.data.id) {
